@@ -9,3 +9,15 @@ export interface Paciente {
   email_pac?: string;
   fechaNac_pac: string; // Viene como string ISO del backend
 }
+
+export interface Podologa {
+  id_pod: number;
+  nombres_pod: string;
+  apellidos_pod: string;
+  cedula_pod: string;
+  genero_pod: 'masculino' | 'femenino' | 'otro';
+  telefono_pod?: string;
+  direccion_pod?: string;
+  email_pod?: string;
+  fechaNac_pod: string;
+}

@@ -1,4 +1,5 @@
 # Dependencias (Esto eliminará el 90% de los archivos basura)
+node_modules
 **/node_modules
 **/jspm_packages
 **/pnpm-lock.yaml
