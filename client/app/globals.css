@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Variables para manejar colores si es necesario */
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 249, 250, 251; /* Un gris muy muy suave (gray-50) */
+}
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900;
+  }
+}
+
+body {
+  /* Aplicamos el fondo suave y el color de texto por defecto */
+  background-color: rgb(var(--background-rgb));
+  color: #1f2937; /* gray-800 de tailwind */
+  
+  /* Forzamos suavizado de fuentes */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Opcional: Estilo para inputs para que no se vean feos por defecto */
+input, select, textarea {
+  outline: none;
+}

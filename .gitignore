@@ -1,46 +1,43 @@
-# =================================================================
-# --- General ---
-# =================================================================
-# Archivos de Log
+# Dependencias (Esto eliminará el 90% de los archivos basura)
+**/node_modules
+**/jspm_packages
+**/pnpm-lock.yaml
+**/package-lock.json
+**/yarn.lock
+
+# Next.js (Carpeta de compilación)
+**/client/.next/
+**/client/out/
+**/client/build
+
+# Logs
 *.log
-npm-debug.log*
-yarn-error.log
-pnpm-debug.log
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+**/lerna-debug.log*
 
-# Archivos de configuración de IDEs
-.idea/
-.vscode/
-*.iml
+# Variables de Entorno (¡MUY IMPORTANTE POR SEGURIDAD!)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+**/.env
+**/.env.local
 
-# Archivos de Sistema Operativo
+# Prisma
+**/server/shared/prisma/migrations/
+# Si decides subir las migraciones al repo, comenta la línea de arriba con un #
+
+# Archivos de Sistema
 .DS_Store
 Thumbs.db
+*.bak
+*.swp
 
-
-# =================================================================
-# --- Server (Node.js / Express / Prisma) ---
-# =================================================================
-# Dependencias
-server/node_modules/
-
-# Archivos de build (TypeScript compilado)
-server/dist/
-
-# Archivo de entorno (¡MUY IMPORTANTE!)
-# Contiene los secretos de la base de datos
-server/.env
-
-
-# =================================================================
-# --- Client (Next.js) ---
-# =================================================================
-# Dependencias
-client/node_modules/
-
-# Archivos de build y caché de Next.js
-client/.next/
-client/out/
-
-# Archivos de entorno del cliente
-client/.env.local
-client/.env
+# IDEs y Editores
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
