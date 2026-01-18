@@ -46,7 +46,7 @@ export default function ConsultasPage() {
 
   const formatDateTime = (isoString: string) => {
     return new Date(isoString).toLocaleDateString('es-EC', { 
-      year: 'numeric', month: 'short', day: 'numeric', 
+      weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', 
       hour: '2-digit', minute: '2-digit' 
     });
   };
@@ -119,7 +119,7 @@ export default function ConsultasPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
-                        <button onClick={() => setConsultaSeleccionada(con)} className="text-blue-600 hover:text-blue-900 font-bold">Ver</button>
+                        <button onClick={() => setConsultaSeleccionada(con)} className="text-gray-600 hover:text-gray-900 font-bold">Ver</button>
                         <Link href={`/consultas/${con.id_con}`} className="text-oxi-blue hover:text-oxi-dark font-semibold">Editar</Link>
                         <button onClick={() => handleDelete(con.id_con)} className="text-red-500 hover:text-red-700 font-semibold">Eliminar</button>
                       </td>
@@ -147,40 +147,47 @@ export default function ConsultasPage() {
 
                 <div className="space-y-4">
                     {/* Info Básica */}
+                    <h3 className="text-sm font-bold text-gray-700 mb-3 text-center">Información General</h3>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="text-xs font-bold text-gray-500 uppercase">Paciente</label>
-                            <p className="text-lg">{getNombrePaciente(consultaSeleccionada.id_pac)}</p>
+                            <p className="font-medium">{getNombrePaciente(consultaSeleccionada.id_pac)}</p>
+                        </div>
+                        <div>
+                          <label className="text-xs font-bold text-gray-500 uppercase">Especialista</label>
+                          <p className="font-medium">{consultaSeleccionada.podologa?.nombres_pod || 'N'} {consultaSeleccionada.podologa?.apellidos_pod || 'A'}</p>
                         </div>
                         <div>
                             <label className="text-xs font-bold text-gray-500 uppercase">Fecha</label>
-                            <p>{formatDateTime(consultaSeleccionada.fechaHora_con)}</p>
+                            <p className="font-medium">{formatDateTime(consultaSeleccionada.fechaHora_con)}</p>
                         </div>
                     </div>
 
                     {/* Diagnóstico */}
                     <div className="bg-blue-50 p-3 rounded border border-blue-100">
                         <label className="text-xs font-bold text-gray-500 uppercase">Motivo de Consulta</label>
-                        <p className="mb-2">{consultaSeleccionada.motivoConsulta_con}</p>
+                        <p className="font-medium mb-2">{consultaSeleccionada.motivoConsulta_con}</p>
                         
                         <label className="text-xs font-bold text-gray-500 uppercase text-oxi-blue">Diagnóstico</label>
-                        <p className="font-medium">{consultaSeleccionada.diagnostico_con || 'Sin diagnóstico registrado'}</p>
+                        <p className="font-medium mb-2">{consultaSeleccionada.diagnostico_con || 'Sin diagnóstico registrado'}</p>
                     </div>
 
                     {/* Tratamiento y Notas */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
+                    <div className="p-3 rounded border">
+                        <div className="mb-2">
                              <label className="text-xs font-bold text-gray-500 uppercase">Tratamiento Recomendado</label>
-                             <p>{consultaSeleccionada.tratamientoSugerido?.nombres_tra || 'Ninguno'}</p>
+                             <p className="font-sm">{consultaSeleccionada.tratamientoSugerido?.nombres_tra || 'Ninguno'}</p>
                         </div>
-                        <div>
+                        <div className="mb-2">
                              <label className="text-xs font-bold text-gray-500 uppercase">Notas Adicionales</label>
-                             <p className="text-gray-600 italic">{consultaSeleccionada.notasAdicionales_con || 'N/A'}</p>
+                             <p className="font-sm text-gray-600 italic">{consultaSeleccionada.notasAdicionales_con || 'N/A'}</p>
                         </div>
                     </div>
 
                     {/* Finanzas */}
-                    <div className="bg-green-50 p-3 rounded border border-green-200 flex justify-between items-center">
+                    <div className="border-t pt-4">
+                      <h3 className="text-sm font-bold text-gray-700 mb-3 text-center">Información Financiera</h3>
+                      <div className="bg-green-50 p-3 rounded border border-green-200 flex justify-between items-center">
                         <div>
                             <label className="text-xs font-bold text-green-700 uppercase">Estado de Pago</label>
                             <p className={`font-bold ${consultaSeleccionada.pagado_con ? 'text-green-600' : 'text-red-500'}`}>
@@ -191,6 +198,7 @@ export default function ConsultasPage() {
                              <label className="text-xs font-bold text-gray-500 uppercase">Monto Pagado</label>
                              <p className="text-xl font-bold text-gray-800">${Number(consultaSeleccionada.cantidadPagada_con || 0).toFixed(2)}</p>
                         </div>
+                    </div>
                     </div>
                 </div>
 
