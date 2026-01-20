@@ -147,3 +147,25 @@ Una vez que ambos servidores (Backend y Frontend) estén encendidos, puedes acce
 - Gestión de Tratamientos: http://localhost:3000/tratamientos
 
 - Endpoints de la API (Pacientes): http://localhost:4001/api/pacientes
+
+### 6. Levantar Microservicio de Notificaciones (WhatsApp)
+Abre una sexta terminal en la raíz del proyecto:
+
+    1. Entra al servicio:
+```
+cd server/notifications-service
+npm install
+```
+
+    2. Crea un archivo .env en server/notifications-service/ con:
+```
+PORT=4004
+DATABASE_URL="mysql://root:12345@localhost:3306/oxipie_db"
+```
+
+    4. Inicia el servidor
+```
+npm start
+```
+
+**Importante:** Al iniciar, aparecerá un código QR en la terminal. Debes escanearlo con WhatsApp (Dispositivos Vinculados) para activar el bot. También puedes ver el QR desde el Frontend una vez encendido.
