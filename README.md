@@ -90,8 +90,45 @@ PORT=4002
 ```
 npm start
 ```
+### 5. Levantar Microservicio de ingresos y egresos
+Abre una quinta terminal en la raíz del proyecto:
 
-### 5. Levantar el Frontend (Next.js)
+    1. Entra al servicio:
+```
+cd server/finance-service
+npm install
+
+    2. Crea un archivo .env en server/finance-service/ con:
+```
+PORT=4003
+DATABASE_URL="mysql://root:12345@localhost:3306/oxipie_db"
+```
+
+    3. Inicia el servidor
+```
+npm start
+```
+### 6. Levantar Microservicio de Notificaciones (WhatsApp)
+Abre una sexta terminal en la raíz del proyecto:
+
+    1. Entra al servicio:
+```
+cd server/notifications-service
+npm install
+```
+
+    2. Crea un archivo .env en server/notifications-service/ con:
+```
+PORT=4004
+DATABASE_URL="mysql://root:12345@localhost:3306/oxipie_db"
+```
+
+    4. Inicia el servidor
+```
+npm start
+```
+
+### 7. Levantar el Frontend (Next.js)
 Se abre una cuarta terminal en la raíz del proyecto:
 
     1. Entra al clienta
@@ -105,35 +142,15 @@ npm install
 NEXT_PUBLIC_API_PATIENTS="http://127.0.0.1:4001/api"
 NEXT_PUBLIC_API_SCHEDULING="http://127.0.0.1:4002/api"
 NEXT_PUBLIC_API_FINANCE="http://127.0.0.1:4003/api"
+NEXT_PUBLIC_API_NOTIFICATIONS="http://127.0.0.1:4004/api/notificaciones"
 ```
 
     3. Inicia el servidor de desarrollo:
 ```
 npm run dev
 ```
-### 6. Levantar Microservicio de ingresos y egresos
-Abre una quinta terminal en la raíz del proyecto:
 
-    1. Entra al servicio:
-```
-cd server/finance-service
-npm install
-```
-    2. Entra al servicio:
-```
-npm install recharts
-```
-
-    3. Crea un archivo .env en server/finance-service/ con:
-```
-PORT=4003
-DATABASE_URL="mysql://root:12345@localhost:3306/oxipie_db"
-```
-
-    4. Inicia el servidor
-```
-npm start
-```
+**Importante:** Al iniciar, aparecerá un código QR en la terminal. Debes escanearlo con WhatsApp (Dispositivos Vinculados) para activar el bot. También puedes ver el QR desde el Frontend una vez encendido.
 
 ## Uso del Sistema
 Una vez que ambos servidores (Backend y Frontend) estén encendidos, puedes acceder a:
@@ -147,3 +164,4 @@ Una vez que ambos servidores (Backend y Frontend) estén encendidos, puedes acce
 - Gestión de Tratamientos: http://localhost:3000/tratamientos
 
 - Endpoints de la API (Pacientes): http://localhost:4001/api/pacientes
+

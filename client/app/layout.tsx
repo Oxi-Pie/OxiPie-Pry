@@ -69,6 +69,10 @@ export default function RootLayout({
                   <Link href="/finanzas" className="border-transparent text-gray-500 hover:border-pie-green hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                     Finanzas
                   </Link>
+                  {/* 9. Configuración WhatsApp Bot */}
+                  <Link href="/configuracion/whatsapp" className="border-transparent text-gray-500 hover:border-pie-green hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                    WhatsApp Bot
+                  </Link>
 
                 </div>
               </div>
