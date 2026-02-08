@@ -97,19 +97,14 @@ Abre una quinta terminal en la raíz del proyecto:
 ```
 cd server/finance-service
 npm install
-```
-    2. Entra al servicio:
-```
-npm install recharts
-```
 
-    3. Crea un archivo .env en server/finance-service/ con:
+    2. Crea un archivo .env en server/finance-service/ con:
 ```
 PORT=4003
 DATABASE_URL="mysql://root:12345@localhost:3306/oxipie_db"
 ```
 
-    4. Inicia el servidor
+    3. Inicia el servidor
 ```
 npm start
 ```
