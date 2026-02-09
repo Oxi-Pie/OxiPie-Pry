@@ -61,14 +61,32 @@ const verificarDisponibilidad = async (id_pod, inicio, fin, excluirCitaId = null
     return true;
 };
 
-const buscarTodas = async (fechaFiltro) => {
+const buscarTodas = async (fecha, mes, id_pac, id_pod) => {
   const where = {};
-  // Si envían fecha completa YYYY-MM-DD
-  if (fechaFiltro && fechaFiltro.length === 10) {
-    const [anio, mes, dia] = fechaFiltro.split('-').map(Number);
-    const inicio = new Date(anio, mes - 1, dia, 0, 0, 0);
-    const fin = new Date(anio, mes - 1, dia, 23, 59, 59);
+
+  // Filtro 1: Fecha Exacta
+  if (fecha) {
+    const [anio, m, dia] = fecha.split('-').map(Number);
+    const inicio = new Date(anio, m - 1, dia, 0, 0, 0);
+    const fin = new Date(anio, m - 1, dia, 23, 59, 59);
     where.fechaHora_cit = { gte: inicio, lte: fin };
+  } 
+  // Filtro 2: Mes Completo
+  else if (mes) {
+     const [anio, m] = mes.split('-').map(Number);
+     const inicio = new Date(anio, m - 1, 1, 0, 0, 0);
+     const fin = new Date(anio, m, 0, 23, 59, 59);
+     where.fechaHora_cit = { gte: inicio, lte: fin };
+  }
+
+  // Filtro 3: Paciente
+  if (id_pac) {
+      where.id_pac = parseInt(id_pac);
+  }
+
+  // Filtro 4: Podóloga
+  if (id_pod) {
+      where.id_pod = parseInt(id_pod);
   }
 
   return await prisma.cita.findMany({
@@ -109,11 +127,9 @@ const registrar = async (datos) => {
     precioAcordado_cit: parseFloat(datos.precioAcordado_cit),
     notasAdicionales_cit: datos.notasAdicionales_cit || "",
     
-    // --- AQUÍ ESTABAN FALTANDO LOS CAMPOS DE PAGO ---
-    estado_cit: datos.estado_cit || 'pendiente', // Usar el estado que envía el front
-    pagado_cit: datos.pagado_cit === true || datos.pagado_cit === 'true', // Asegurar boolean
+    estado_cit: datos.estado_cit || 'pendiente',
+    pagado_cit: datos.pagado_cit === true || datos.pagado_cit === 'true',
     cantidadPagada_cit: datos.cantidadPagada_cit ? parseFloat(datos.cantidadPagada_cit) : 0
-    // -----------------------------------------------
   };
 
   if (datos.id_pod && datos.id_pod !== "") {
@@ -143,7 +159,6 @@ const actualizar = async (id, datos) => {
         notasAdicionales_cit: datos.notasAdicionales_cit,
         precioAcordado_cit: datos.precioAcordado_cit ? parseFloat(datos.precioAcordado_cit) : undefined,
         estado_cit: datos.estado_cit,
-        // Agregar campos de pago en actualización también
         pagado_cit: datos.pagado_cit !== undefined ? (datos.pagado_cit === true || datos.pagado_cit === 'true') : undefined,
         cantidadPagada_cit: datos.cantidadPagada_cit ? parseFloat(datos.cantidadPagada_cit) : undefined
     };
