@@ -36,10 +36,12 @@ const enviarRecordatoriosManana = async () => {
         if (citas.length === 0) return { procesados: 0, mensaje: 'No hay citas para mañana' };
 
         let enviados = 0;
+        let index = 0;
 
         // --- INICIO DEL BUCLE DE ENVÍO ---
         for (const cita of citas) {
-            // Protección individual: Si falla uno, el bucle continúa
+            index++; // Aumentamos el contador en cada vuelta
+            
             try {
                 console.log(`🔍 Procesando paciente ID: ${cita.paciente.id_pac} - Nombre: ${cita.paciente.nombres_pac} - Tel: ${cita.paciente.telefono_pac}`);
                 const telefono = cita.paciente.telefono_pac;
@@ -52,11 +54,9 @@ const enviarRecordatoriosManana = async () => {
 
                 if (!client.info) {
                     console.log('❌ El bot no está conectado. Abortando envío.');
-                    break; // Si no hay conexión, paramos todo
+                    break;
                 }
 
-                // === CORRECCIÓN DEL ERROR "NO LID" ===
-                // Verificamos si el número está registrado en WhatsApp antes de enviar
                 const contactoValidado = await client.getNumberId(chatIdRaw);
 
                 if (!contactoValidado) {
@@ -64,7 +64,6 @@ const enviarRecordatoriosManana = async () => {
                     continue;
                 }
 
-                // Usamos el ID serializado que nos devuelve WhatsApp (_serialized)
                 const destinatarioFinal = contactoValidado._serialized; 
 
                 const hora = new Date(cita.fechaHora_cit).toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit', hour12: true });
@@ -82,15 +81,22 @@ const enviarRecordatoriosManana = async () => {
                 console.log(`✅ Recordatorio enviado a: ${cita.paciente.nombres_pac}`);
                 enviados++;
 
-                
-                
-                // Pausa anti-ban
-                await new Promise(r => setTimeout(r, 3000));
+                // ESTRATEGIA ANTI-BAN: Pausa Aleatoria
+                // Solo hacemos la pausa si NO es el último paciente de la lista
+                if (index < citas.length) {
+                    // Generar un tiempo aleatorio entre 20 y 45 segundos
+                    const minSegundos = 20;
+                    const maxSegundos = 45;
+                    const segundosEspera = Math.floor(Math.random() * (maxSegundos - minSegundos + 1)) + minSegundos;
+                    
+                    console.log(`Anti-Ban: Simulando comportamiento humano. Esperando ${segundosEspera} segundos...`);
+                    
+                    // Detiene la ejecución de este bucle durante los segundos calculados
+                    await new Promise(resolve => setTimeout(resolve, segundosEspera * 1000));
+                }
 
             } catch (errorIndividual) {
-                // AQUÍ CAPTURAMOS EL ERROR DEL PACIENTE INDIVIDUAL
-                // Así el servidor no se muere si un número falla
-                console.error(`❌ Error enviando a ${cita.paciente.nombres_pac}: ${errorIndividual.message}`);
+                console.error(`Error enviando a ${cita.paciente.nombres_pac}: ${errorIndividual.message}`);
             }
         }
         // --- FIN DEL BUCLE ---

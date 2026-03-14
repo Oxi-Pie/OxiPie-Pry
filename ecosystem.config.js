@@ -16,28 +16,40 @@ module.exports = {
       name: "Srv-Pacientes",
       cwd: "./server/patients-service",
       script: "src/index.js",
-      env: { PORT: 4001 }
+      env: { 
+        PORT: 4001,
+        NODE_ENV: "production"
+       }
     },
     // 3. AGENDAMIENTO
     {
       name: "Srv-Agenda",
       cwd: "./server/scheduling-service",
       script: "src/index.js",
-      env: { PORT: 4002 }
+      env: { 
+        PORT: 4002,
+        NODE_ENV: "production"
+     }
     },
     // 4. FINANZAS
     {
       name: "Srv-Finanzas",
       cwd: "./server/finance-service",
       script: "src/index.js",
-      env: { PORT: 4003 }
+      env: { 
+        PORT: 4003,
+        NODE_ENV: "production"
+      }
     },
     // 5. NOTIFICACIONES (WhatsApp)
     {
       name: "Srv-WhatsApp",
       cwd: "./server/notifications-service",
       script: "src/index.js",
-      env: { PORT: 4004 },
+      env: { 
+        PORT: 4004,
+        NODE_ENV: "production"
+      },
       // Esperar un poco si falla para no bloquear WhatsApp por reinicios rápidos
       exp_backoff_restart_delay: 100 
     }
