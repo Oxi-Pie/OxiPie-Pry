@@ -66,19 +66,37 @@ const enviarRecordatoriosManana = async () => {
 
                 const destinatarioFinal = contactoValidado._serialized; 
 
+                // === PREPARACIÓN DE VARIABLES ===
                 const hora = new Date(cita.fechaHora_cit).toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit', hour12: true });
                 const especialista = cita.podologa ? `${cita.podologa.nombres_pod} ${cita.podologa.apellidos_pod}` : 'Por asignar';
+                const fecha = inicioDia.toLocaleDateString();
+                const nombrePaciente = cita.paciente.nombres_pac;
+                const nombreTratamiento = cita.tratamiento.nombres_tra;
                 
-                const mensaje = `👋 Hola *${cita.paciente.nombres_pac}*, saludos de OxiPie.\n\n` +
-                                `Le recordamos su cita para mañana:\n` +
-                                `🗓 *Fecha:* ${inicioDia.toLocaleDateString()}\n` +
-                                `⏰ *Hora:* ${hora}\n` +
-                                `🦶 *Tratamiento:* ${cita.tratamiento.nombres_tra}\n` +
-                                `👩‍⚕️ *Especialista:* ${especialista}\n\n` +
-                                `Si necesita reagendar, por favor avísenos por este medio. ¡Le esperamos!`;
+                // === BANCO DE PLANTILLAS DE MENSAJES ===
+                // Array con 4 estilos diferentes para parecer humano
+                const plantillas = [
+                    // Estilo 1: El Clásico (El que ya tenías)
+                    `👋 Hola *${nombrePaciente}*, saludos de OxiPie.\n\nLe recordamos su cita para mañana:\n🗓 *Fecha:* ${fecha}\n⏰ *Hora:* ${hora}\n🦶 *Tratamiento:* ${nombreTratamiento}\n👩‍⚕️ *Especialista:* ${especialista}\n\nSi necesita reagendar, por favor avísenos por este medio. ¡Le esperamos!`,
 
-                await client.sendMessage(destinatarioFinal, mensaje);
-                console.log(`✅ Recordatorio enviado a: ${cita.paciente.nombres_pac}`);
+                    // Estilo 2: Amigable y Directo
+                    `¡Hola *${nombrePaciente}*! 🌟 Le escribimos del centro podológico OxiPie para confirmar su turno de mañana.\n\n📌 *Detalles de su cita:*\n- *Día:* ${fecha}\n- *Hora:* ${hora}\n- *Servicio:* ${nombreTratamiento}\n- *Le atenderá:* ${especialista}\n\nPor favor, si tiene algún inconveniente para asistir, comuníquese con nosotros. ¡Que tenga un excelente día!`,
+
+                    // Estilo 3: Breve y Formal
+                    `Estimado/a *${nombrePaciente}*, desde OxiPie le recordamos su cita programada para el día de mañana.\n\n🗓️ ${fecha} a las ⏰ ${hora}\n🦶 Tratamiento: ${nombreTratamiento} con ${especialista}.\n\nAgradecemos su puntualidad. Si desea cancelar o modificar el horario, responda a este mensaje. Saludos cordiales.`,
+
+                    // Estilo 4: Cálido y Cercano
+                    `Hola *${nombrePaciente}*, esperamos que esté muy bien. Nos comunicamos de OxiPie para recordarle su visita de mañana 🗓️ ${fecha}.\n\nSu turno es a las *${hora}* para el tratamiento de *${nombreTratamiento}* con *${especialista}*.\n\n¡Le esperamos con gusto! Cualquier duda o cambio, estamos a las órdenes por aquí. 👋`
+                ];
+
+                // === SELECCIÓN ALEATORIA ===
+                // Math.random() elige un número al azar entre 0 y 3
+                const indiceAleatorio = Math.floor(Math.random() * plantillas.length);
+                const mensajeSeleccionado = plantillas[indiceAleatorio];
+
+                // Enviamos el mensaje que salió sorteado
+                await client.sendMessage(destinatarioFinal, mensajeSeleccionado);
+                console.log(`✅ Recordatorio enviado a: ${nombrePaciente} (Usando plantilla #${indiceAleatorio + 1})`);
                 enviados++;
 
                 // ESTRATEGIA ANTI-BAN: Pausa Aleatoria

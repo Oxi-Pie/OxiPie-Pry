@@ -5,7 +5,13 @@ const getEstado = (req, res) => {
         const status = WhatsappService.getStatus();
         res.json(status);
     } catch (error) {
-        res.status(500).json({ error: 'Error obteniendo el estado de WhatsApp' });
+        // AHORA SÍ VEREMOS EL ERROR REAL EN LA TERMINAL
+        console.error('❌ CRASH en getEstado:', error.message, error.stack); 
+        
+        res.status(500).json({ 
+            error: 'Error obteniendo el estado de WhatsApp',
+            detalle: error.message 
+        });
     }
 };
 

@@ -2,15 +2,12 @@ const { Client, LocalAuth } = require('whatsapp-web.js');
 const fs = require('fs');
 const path = require('path');
 
-// Rutas absolutas a las carpetas problemáticas
 const authPath = path.join(__dirname, '../../.wwebjs_auth');
 const cachePath = path.join(__dirname, '../../.wwebjs_cache');
 
-console.log('🔄 Inicializando servicio de WhatsApp...');
-
-// Variables para almacenar estado
 let qrCodeData = null;
 let isConnected = false;
+let isRestarting = false;
 
 const client = new Client({
     authStrategy: new LocalAuth(),
@@ -20,8 +17,55 @@ const client = new Client({
     }
 });
 
+// 1. EL RESET ABSOLUTO (A prueba de bloqueos de Windows)
+const logout = async () => {
+    if (isRestarting) return false;
+    isRestarting = true;
+    
+    console.log('🧹 Iniciando limpieza profunda de sesión...');
+
+    // PASO 1: Destruir el navegador de Puppeteer para que suelte los archivos
+    try {
+        console.log('🛑 Cerrando navegador interno...');
+        await client.destroy();
+    } catch (e) {
+        console.log('⚠️ El navegador ya estaba cerrado o no respondió.');
+    }
+
+    // PASO 2: Darle a Windows 1.5 segundos para liberar el bloqueo del disco duro
+    console.log('⏳ Esperando que Windows libere los archivos...');
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    // PASO 3: Borrar las carpetas (con reintentos por si Windows se pone terco)
+    try {
+        // maxRetries: 5 significa que si falla, lo intentará 5 veces más esperando medio segundo
+        const rmOptions = { recursive: true, force: true, maxRetries: 5, retryDelay: 500 };
+        
+        if (fs.existsSync(authPath)) fs.rmSync(authPath, rmOptions);
+        if (fs.existsSync(cachePath)) fs.rmSync(cachePath, rmOptions);
+        
+        console.log('🗑️ Carpetas de sesión eliminadas del disco correctamente.');
+    } catch (fsError) {
+        console.error('❌ Error crítico borrando carpetas (Archivo aún en uso):', fsError.message);
+    }
+
+    // PASO 4: El "Suicidio" para limpiar la memoria (PM2 nos revivirá al instante)
+    console.log('☠️ Reiniciando proceso para limpiar memoria...');
+    setTimeout(() => {
+        process.exit(1);
+    }, 1000);
+
+    return true;
+};
+
+// 2. PROTECCIÓN CONTRA CRASHES GLOBALES
+// Evita que errores de "Target closed" de Puppeteer maten el servidor sin permiso
+process.on('unhandledRejection', (reason, promise) => {
+    console.log('⚠️ Promesa huérfana ignorada (Común al reiniciar Puppeteer)');
+});
+
+// 3. EVENTOS
 client.on('qr', (qr) => {
-    // En lugar de imprimirlo, lo guardamos para mandarlo al front
     console.log('NUEVO QR GENERADO (Disponible en API)');
     qrCodeData = qr;
     isConnected = false;
@@ -30,77 +74,43 @@ client.on('qr', (qr) => {
 client.on('ready', () => {
     console.log('✅ Cliente de WhatsApp conectado!');
     isConnected = true;
-    qrCodeData = null; // Ya no necesitamos el QR
+    qrCodeData = null;
+    isRestarting = false;
 });
 
 client.on('authenticated', () => {
-    console.log('Autenticado correctamente');
+    console.log('✅ Autenticado correctamente');
     isConnected = true;
 });
 
-client.on('auth_failure', () => {
-    console.error('Fallo de autenticación');
-    isConnected = false;
+client.on('auth_failure', async (msg) => {
+    console.error('❌ Fallo de autenticación detectado:', msg);
+    await logout();
 });
 
 client.on('disconnected', async (reason) => {
-    console.log('⚠️ Cliente desconectado por WhatsApp:', reason);
-    isConnected = false;
+    console.log(`⚠️ Cliente desconectado por WhatsApp. Motivo: ${reason}`);
     
-    // Si fue intencional desde el celular, limpiamos todo
-    if (reason === 'NAVIGATION' || reason === 'CONFLICT' || reason === 'UNPAIRED_IDLE') {
+    // Agregamos 'LOGOUT' a la lista de razones fatales
+    const fatalReasons = ['NAVIGATION', 'CONFLICT', 'UNPAIRED_IDLE', 'LOGOUT'];
+    
+    if (fatalReasons.includes(reason)) {
         await logout();
     } else {
-        client.initialize(); 
+        console.log('🔄 Desconexión menor. Esperando que la librería se reconecte sola...');
+        // Dejamos que whatsapp-web.js maneje las caídas de WiFi por su cuenta
     }
 });
 
-client.initialize();
-
+// 4. EXPORTS
 const getStatus = () => {
     return {
         connected: isConnected,
         qr: qrCodeData,
-        phone: client.info ? client.info.wid.user : null
+        phone: client?.info?.wid?.user || null
     };
 };
 
-const logout = async () => {
-    console.log('🧹 Iniciando proceso de desconexión y limpieza...');
-    
-    try {
-        if (isConnected) await client.logout();
-    } catch (e) {
-        console.warn('⚠️ Cierre educado falló. Procediendo a destrucción forzada.');
-    }
+client.initialize();
 
-    try {
-        await client.destroy(); // Matar Puppeteer
-    } catch (e) {
-        // Ignoramos si ya estaba muerto
-    }
-
-    // ELIMINAR LAS CARPETAS FÍSICAMENTE
-    try {
-        if (fs.existsSync(authPath)) {
-            fs.rmSync(authPath, { recursive: true, force: true });
-            console.log('🗑️ Carpeta .wwebjs_auth eliminada.');
-        }
-        if (fs.existsSync(cachePath)) {
-            fs.rmSync(cachePath, { recursive: true, force: true });
-            console.log('🗑️ Carpeta .wwebjs_cache eliminada.');
-        }
-    } catch (fsError) {
-        console.error('❌ Error borrando carpetas:', fsError);
-    }
-
-    // Reiniciar valores
-    isConnected = false;
-    qrCodeData = null;
-
-    // Volver a levantar el navegador para que genere un nuevo QR
-    console.log('♻️ Inicializando cliente desde cero...');
-    client.initialize(); 
-    
-    return true;
-};
+module.exports = { client, getStatus, logout };
